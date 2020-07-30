@@ -1,5 +1,48 @@
 
 data_filename : 'Data/jvds_stelkin_cat_v012_mge_seecorr_kh20_v190620_private.fits'
 
-## Priors
+# Column Names
+lambda_r_column_name : LAMBDAR_RE
+mass_column_name : LMSTAR
 
+# Make a mask which we'll apply to the data to get rid of some galaxies. It's pure python!
+# Use data_df to refer to the dataframe itself
+# Here we're getting rid of infiniet values of mass and lamda_r, selecting galaxies with mass > 9.5 and keeping things with a flag value of 0 or 4
+mask : (np.isfinite(data_df.LAMBDAR_RE)) & (np.isfinite(data_df.LMSTAR)) & (data_df.LMSTAR > 9.5) & ((data_df.GAL_FLAG == 0) | (data_df.GAL_FLAG == 4))
+
+## Output files
+# In here will be folders called "Outputs" (for tables), "Plots" and "Chains"
+results_folder : Results/SAMI_lambda_R_a_b
+outfile_stem : SAMI_lambda_R_a_b
+
+## Initial values for PyStan
+# ToDo - add an easy way to randomise these
+
+init_values : 
+        intercept_SR : 100
+        m_SR : 0.0
+
+        intercept_FR : 4.4
+        m_FR : -1.3
+
+        c_SR : 7
+        c_FR : 4.5
+
+        d_SR : 2.0
+        d_FR : -2.0
+
+        mu : 0.0
+        sigma : -1.2
+
+## Stan options
+
+stan_model_file : "StanModels/SAMI_data_MixtureModel_a_b_parameterisation.stan"
+
+iterations : 1000
+chains : 4
+stan_options : 
+  adapt_delta : 0.9
+
+
+## Plotting options:
+publication_style : True

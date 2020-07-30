@@ -1,0 +1,67 @@
+# PRODUCT = 'Stellar Kinematics Catalog'                                                                                                
+# AUTHOR  = 'Jesse van de Sande'                                                        
+# CONTACT = 'Jesse van de Sande <jesse.vandesande@sydney.edu.au>' 
+# DESCRIPT= 'Catalog for all stellar kinematic measurements'
+#
+CATID            LONG64  Catalog ID from Bryant et al. 2015 and Owers et al. 2017.
+CATID_EXT        LONG64  Extended Catalog ID from Bryant et al. 2015 and Owers et al. 2017 (includes 1e12 for repeats)
+SAMI_FILENAME    STRING  File name of SAMI input data cube.
+OBS_DATE         STRING  Date galaxy was observed
+RA               FLOAT   Right Ascension in degrees from Bryant et al. 2015.
+DEC              FLOAT   Declination in degrees from Bryant et al. 2015.
+LMSTAR           FLOAT   Log_10 Stellar mass derived from g-i colour from Bryant et al. 2015 and Owers et al. 2017.
+Z_SPEC           FLOAT   Spectroscopic Redshift from from Bryant et al. 2015 and Owers et al. 2017.
+Z_TONRY          FLOAT   Tonry Redshift from from Bryant et al. 2015 (GAMA only)
+GMINUSI          FLOAT   g-i colour from from Bryant et al. 2015 and Owers et al. 2017.
+MU_AT_RE         FLOAT   Mean surface density at one Re from Bryant et al. 2015
+GAL_FLAG         FLOAT   Flag = 0 is safe to use, Flag > 0 warnings apply (see SAMI handle with care flag file)
+HWHM_PSF         FLOAT   PSF Half-Width at Half-Max in arcseconds.
+RE               FLOAT   Effective Semi-Major axis in arcseconds from MGE (F. D'Eugenio in Prep.).
+RE_CIRC_KPC      FLOAT   Effective Circularised radius in KiloParsec from MGE (F. D'Eugenio in Prep.).
+ELLIP            FLOAT   Ellipticity at effective radius from best-fit MGE model measured with FIND_GALAXY (F. D'Eugenio in Prep.).
+N_SERSIC         FLOAT   Sersic index from the GAMA best-fit 2D Sersic profile in the r-band Lee et al. 2012
+MTYPE            FLOAT   SAMI visual morphological type from Cortese et al. 2016
+KIN_MTYPE        FLOAT   SAMI visual kinematic morphological type from van de Sande et al. in Prep
+ENV_DIST_TO_5NN  FLOAT   Distance to Nth nearest neighbour in co-moving units from Brought et al. 2017
+ENV_SURFDENS     FLOAT   Surface density based on the distance to the Nth nearest neighbour from Brought et al. 2017
+E_ENV_SURFDENS   FLOAT   Surface density uncertainty from Brought et al. 2017
+SAMI_ISO         FLOAT   Galaxy not in GAMA Group Catalog Robotham et al. 2011 G3CFoFGroup 
+SAMI_CENTRAL     FLOAT   Primary galaxy in GAMA Group Catalog Robotham et al. 2011 G3CFoFGroup 
+SAMI_SAT         FLOAT   Satellite galaxy in GAMA Group Catalog Robotham et al. 2011 G3CFoFGroup 
+HALOMASS         FLOAT   Group Halo Mass that Galaxy is in (MassAfunc, corrected to SAMI default Cosmology H0=70) GAMA Group Catalog Robotham et al. 2011 G3CFoFGroup v10
+HALOMASS_UNIQUE  FLOAT   Group Halo Mass listed only once if other galaxy in same group exists
+GROUP_ID         FLOAT   Group ID from GAMA Group Catalog Robotham et al. 2011 G3CFoFGroup v10
+HALOMASS_WEIGHT  FLOAT   Weight derived from Halo Mass Function; only for galaxies with log(Mhalo)>13. See van de Sande et al. 2019
+PA_PHOT          FLOAT   Photometric Position Angle from MGE in degrees. Anticlockwise, west=0 degrees. (F. D'Eugenio in Prep.).
+PA_STELKIN       FLOAT   Stellar Kinematic Position Angle derived using FIT_KINEMATIC_PA in degrees. Anticlockwise, north=0 degrees. (van de Sande et al. 2017).
+E_PA_STELKIN     FLOAT   1-Sigma error on the Kinematic Position Angle from FIT_KINEMATIC_PA (van de Sande et al. 2017).
+PA_GASKIN        FLOAT   Gas Kinematic Position Angle derived using FIT_KINEMATIC_PA in degrees. Anticlockwise, north=0 degrees.
+E_PA_GASKIN      FLOAT   1-Sigma error on the Kinematic Position Angle from FIT_KINEMATIC_PA
+RMAX_VSIGMA      FLOAT   Maximum Semi-Major axis in arcseconds of V and Sigma maps, assuming fill factor of 85%.
+SIGMA_RE         FLOAT   Flux weighted velocity dispersion within effective ellipse in km/s.
+E_SIGMA_RE       FLOAT   1-Sigma Error on SIGMA_RE 
+VRMS_RE          FLOAT   Vrms calculated from Velocity and Velocity Dispersion map (van de Sande et al. 2019)
+E_VRMS_RE        FLOAT   Vrms calculated from Velocity and Velocity Dispersion map (van de Sande et al. 2019)
+APER_CORR_FLAG   FLOAT   Flag to indicate whether LambdaR_Re and VSigma_Re have been aperture corrected. 0 = no aper corr. 1 = inside-out aperture corrected (rmax < re).
+RMAX_APER_CORR   FLOAT   Radius at which the aperture corrected value was determined from in units of R_E_MGE.
+LAMBDAR_RE       FLOAT   Spin Parameter proxy within effective ellipse as defined in Van de Sande et al. 2017.
+E_LAMBDAR_RE     FLOAT   1-Sigma Error on LambdaR_Re.
+LAMBDAR_MAX      FLOAT   LambdaR at maximum radius that is used for aperture correction (where APER_CORR_FLAG = 1).
+E_LAMBDAR_MAX    FLOAT   1-Sigma Error on LambdaR_Max.
+LAMBDAR_RE_EO    FLOAT   Edge-on approximation for Spin Parameter proxy within effective ellipse.
+E_LAMBDAR_RE_EO  FLOAT   1-Sigma Error on LambdaR_Re_eo.
+VSIGMA_RE        FLOAT   Flux weighted V/Sigma within effective ellipse.
+E_VSIGMA_RE      FLOAT   1-Sigma Error on VSigma_Re.
+VSIGMA_MAX       FLOAT   V/Sigma at maximum radius that is used for aperture correction (where APER_CORR_FLAG = 1).
+EVSIGMA_MAX      FLOAT   1-Sigma Error on VSigma_max.
+MEAN_K51_RE      FLOAT   Kinematic asymmetry estimate from KINEMETRY within Re (van de Sande et al. 2017).
+E_MEAN_K51_RE    FLOAT   1-sigma error on mean_k51_re.
+FR_EE11          FLOAT   Flag = 1 to indicate galaxy classified as a slow rotator using the Emsellem et al. 2011 definition.
+SR_EE11          FLOAT   Flag = 1 to indicate galaxy classified as a fast rotator using the Emsellem et al. 2011 definition.
+FR_MC16          FLOAT   Flag = 1 to indicate galaxy classified as a slow rotator using the Cappellari et al. 2016 definition.
+SR_MC16          FLOAT   Flag = 1 to indicate galaxy classified as a fast rotator using the Cappellari et al. 2016 definition.
+INTRINSIC_ELLIP  FLOAT   Best estimate of the Intrinsic Ellipticity from a galaxy's position in the V\Sigma-Ellip diagram
+INCLINATION      FLOAT   Best estimate of the Intrinsic Ellipticity from a galaxy's position in the V\Sigma-Ellip diagram
+LR_SEEING_CORR   FLOAT   LR Seeing Correction (only for seeing_corr and seeing_hom catalogs)
+VS_SEEING_CORR   FLOAT   V/Sigma Seeing Correction (only for seeing_corr and seeing_hom catalogs)
+HIGH_ORDER_CLASS FLOAT   High-order class (1-5) from van de Sande et al. 2017

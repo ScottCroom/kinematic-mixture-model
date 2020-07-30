@@ -1,81 +1,77 @@
 functions{
-
-   real sigmoid(real m, real mu, real sigma) {
+  real sigmoid(real m, real mu, real sigma) {
     return 1.0 /(1.0 + exp(-(m-mu)/sigma));
   }
 
 }
 
 data{
+  // Number of observations
   int N;
-  real x[N];
+
+  // Lambda r and mass values
+  real lambda_r[N];
   real mass[N];
+
+
+  // prior locations
 }
+
 
 parameters{
 
-
-  // Mixture Prob
-  //real<lower=0, upper=1> lambda;
+  // The parameters which control the dependence of mixture probability on mass
   real mu;
   real log_sigma;
 
-  //real<lower=0> B_SR;
 
+  // The parameters of 'a', which is a linear function of mass (i.e. two params) for the SRs
   real intercept_SR;
   real m_SR;
 
+  // The parameters of 'a', which is a linear function of mass (i.e. two params) for the FRs
   real intercept_FR;
   real m_FR;
 
+  // The parameters of 'b', which is a linear function of mass (i.e. two params) for the FRs
   real c_FR; 
-  real c_SR;
-
   real d_FR; 
+
+  // The parameters of 'b', which is a linear function of mass (i.e. two params) for the SRs
+  real c_SR;
   real d_SR;
 
 }
 
 transformed parameters{
 
-  // real<lower=0> phiSR[N];
-  // real<lower=0> phiFR[N];
+  // Micture probability
   real<lower=0, upper=1> lambda[N];
 
-  // real locSR[N];
-  // real locFR[N];
-
+  // A and B values for the FR and SR beta functions
+  // These are a linear fuction of mass
   vector[N] A_FR;
   vector[N] A_SR;
   vector[N] B_FR;
   vector[N] B_SR;
 
-  real tmp_FR;
-  real tmp_SR;
-  real tmp_B_FR;
-  real tmp_B_SR;
 
   for (n in 1:N){
 
-
+  // Lambda is a sigmoid function of mass, with parameters mu and sigma
   lambda[n] = sigmoid(mass[n], mu, exp(log_sigma));
-  tmp_SR = c_SR + d_SR * mass[n];
-  tmp_FR = c_FR + d_FR * mass[n];
 
-  tmp_B_FR = intercept_FR + m_FR * mass[n];
-  tmp_B_SR = intercept_SR + m_SR * mass[n];
+  // 'a' and 'b' are linear functions of mass
+  A_SR[n] = c_SR + d_SR * mass[n];
+  A_FR[n] = c_FR + d_FR * mass[n];
 
-  A_SR[n] = tmp_SR; // Slow Rotators
-  A_FR[n] = tmp_FR; // Fast rotators
-  B_FR[n] = tmp_B_FR;
-  B_SR[n] = tmp_B_SR;
+  B_FR[n] = intercept_FR + m_FR * mass[n];
+  B_SR[n] = intercept_SR + m_SR * mass[n];
   }
 }
 
 model{
 
-  //locSR ~ normal(0.07, 0.1);
-  //locFR ~ normal(0.5, 0.1);
   intercept_SR ~ normal(100, 10);
   m_SR ~ normal(0, 5);
  
@@ -99,13 +95,10 @@ model{
     // print(n, " x[n] ", x[n], " locSR: ", locSR[n], " phiSR: ", phiSR, " lambda: ", lambda[n], "beta: ", beta_lpdf(x[n] | locSR[n] * phiSR, phiSR * (1-locSR[n])))
     // print("~~~~~~~~~~~~~~~~~~~")
     target += log_mix(lambda[n],
-                     beta_lpdf(x[n] | A_SR[n], B_SR[n]),
-                     beta_lpdf(x[n] | A_FR[n], B_FR[n])
+                     beta_lpdf(lambda_r[n] | A_SR[n], B_SR[n]),
+                     beta_lpdf(lambda_r[n] | A_FR[n], B_FR[n])
                      );
 
-     // Add in the Jacobian of the transformation
-     //target += log(fabs(d_SR + 2. * mass[n] * e_SR));
-     //target += log(fabs(d_FR + 2. * mass[n] * e_FR));
   }
 }
 
@@ -114,10 +107,6 @@ generated quantities{
   vector[N] x_tilde;
   vector[N] SR_flag;
 
-  // vector[N_pred] predicted_x;
-  // vector[N_pred] SR_flag;
-  
-  //real pred_lam
 
   //PPC checks
   for (i in 1:N){
