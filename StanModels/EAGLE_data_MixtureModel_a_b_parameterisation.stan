@@ -76,25 +76,25 @@ transformed parameters{
 
 model{
 
-  intercept_SR ~ normal(log(1000), 0.5);
-  m_SR ~ normal(0, 0.5);
+  intercept_SR ~ normal(log(35), 1);
+  m_SR ~ normal(0, 3);
   m_SR_2 ~ normal(0, 1);
  
-  intercept_FR ~ normal(log(4.4), 0.5);
-  m_FR ~ normal(0, 0.5);
+  intercept_FR ~ normal(log(5), 1);
+  m_FR ~ normal(0, 1);
   m_FR_2 ~ normal(0, 1);
 
-  c_SR ~ normal(log(6.9), 0.5);
-  c_FR ~ normal(log(4.5), 0.5);
+  c_SR ~ normal(log(4.66), 0.5);
+  c_FR ~ normal(log(3.56), 0.3);
 
-  d_SR ~ normal(0, 0.5);
-  d_FR ~ normal(0, 0.5);
+  d_SR ~ normal(0, 1);
+  d_FR ~ normal(0, 1);
 
   e_SR ~ normal(0, 1);
   e_FR ~ normal(0, 1);
 
-  mu ~ normal(0, 1);
-  log_sigma ~ normal(0, 2);
+  mu ~ normal(1, 0.5);
+  log_sigma ~ normal(-1, 0.5);
 
   for (n in 1:N){
 

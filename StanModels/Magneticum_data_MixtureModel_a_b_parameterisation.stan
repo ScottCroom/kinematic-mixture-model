@@ -73,22 +73,22 @@ transformed parameters{
   B_SR[n] = exp(intercept_SR + m_SR * mass[n] + m_SR_2 * mass[n] * mass[n]);
   }
 }
-
 model{
 
-  intercept_SR ~ normal(log(1000), 0.5);
-  m_SR ~ normal(0, 0.5);
+  intercept_SR ~ normal(log(201), 1);
+  m_SR ~ normal(0, 3);
   m_SR_2 ~ normal(0, 1);
  
-  intercept_FR ~ normal(log(4.4), 0.5);
-  m_FR ~ normal(0, 0.5);
+  intercept_FR ~ normal(log(9.39), 1);
+  m_FR ~ normal(0, 3);
   m_FR_2 ~ normal(0, 1);
 
-  c_SR ~ normal(log(6.9), 0.5);
-  c_FR ~ normal(log(4.5), 0.5);
+  c_SR ~ normal(log(26.78), 1);
+  c_FR ~ normal(log(4.34), 1);
 
-  d_SR ~ normal(0, 0.5);
-  d_FR ~ normal(0, 0.5);
+  d_SR ~ normal(0, 3);
+  d_FR ~ normal(0, 3);
+
 
   e_SR ~ normal(0, 1);
   e_FR ~ normal(0, 1);

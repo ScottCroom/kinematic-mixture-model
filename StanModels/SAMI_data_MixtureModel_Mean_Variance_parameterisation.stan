@@ -8,7 +8,7 @@ functions{
 
 data{
   int N;
-  real x[N];
+  real lambda_r[N];
   real mass[N];
 }
 
@@ -103,8 +103,8 @@ model{
     // print(n, " x[n] ", x[n], " locSR: ", locSR[n], " phiSR: ", phiSR, " lambda: ", lambda[n], "beta: ", beta_lpdf(x[n] | locSR[n] * phiSR, phiSR * (1-locSR[n])))
     // print("~~~~~~~~~~~~~~~~~~~")
     target += log_mix(lambda[n],
-                     beta_lpdf(x[n] | loc[n, 1] * phiSR, phiSR * (1-loc[n, 1])),
-                     beta_lpdf(x[n] | loc[n, 2] * phiFR, phiFR * (1-loc[n, 2]))
+                     beta_lpdf(lambda_r[n] | loc[n, 1] * phiSR, phiSR * (1-loc[n, 1])),
+                     beta_lpdf(lambda_r[n] | loc[n, 2] * phiFR, phiFR * (1-loc[n, 2]))
                      );
 
      // Add in the Jacobian of the transformation

@@ -1,0 +1,13 @@
+set -e 
+
+python3 MixtureModel.py Config_Files/EAGLE_lambda_r_a_b_SAMI_MF.yaml
+python3 make_plots_and_outputs.py Config_Files/EAGLE_lambda_r_a_b_SAMI_MF.yaml
+
+
+python3 MixtureModel.py Config_Files/Magneticum_lambda_r_a_b_SAMI_MF.yml
+python3 make_plots_and_outputs.py Config_Files/Magneticum_lambda_r_a_b_SAMI_MF.yml
+
+python3 MixtureModel.py Config_Files/Horizon_AGN_lambda_r_a_b_SAMI_MF.yml
+python3 make_plots_and_outputs.py Config_Files/Horizon_AGN_lambda_r_a_b_SAMI_MF.yml
+
+python3 make_plots_and_outputs.py Config_Files/SAMI_lambda_r_a_b.yaml

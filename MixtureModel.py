@@ -37,13 +37,20 @@ if not os.path.exists(f"{config['results_folder']}/Plots"):
     os.makedirs(f"{config['results_folder']}/Plots")
 
 ### Load the data
-
 data_df = P.load_FITS_table_in_pandas(data_filename)
+
 
 # Apply the selection mask
 data_df = data_df[eval(config['mask'])]
 N_rows = len(data_df)
 print(f"After applying the given mask, we have {N_rows} rows of data")
+
+if config['subsample']:
+    data_df = data_df.sample(config['n_samples'])
+    N_rows = len(data_df)
+    print(f"After subsampling, we have {N_rows} rows of data")
+    print(f"Saving subsample to {config['results_folder']}/Outputs/subsample.csv")
+    data_df.to_csv(f"{config['results_folder']}/Outputs/subsample.csv", index=False)
 
 # Get the columns
 lambda_r = data_df[lambda_r_column_name]
@@ -56,7 +63,7 @@ def get_init_values():
 
 
 ### Do the fitting
-data=dict(N=N_rows, lambda_r=lambda_r, mass=log_m - np.mean(log_m))
+data=dict(N=N_rows, lambda_r=lambda_r.values, mass=(log_m - np.mean(log_m)).values)
 sm = pystan.StanModel(file=config['stan_model_file'])
 fit = sm.sampling(data=data, iter=config['iterations'], chains=config['chains'], init=get_init_values, control=config['stan_options'])
 

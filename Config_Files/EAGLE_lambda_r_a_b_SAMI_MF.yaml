@@ -1,0 +1,63 @@
+
+data_filename : Data/jvds_EAGLE_HYDRANGEA_mass_matched_seed_7727.fits
+
+# Column Names
+lambda_r_column_name : LAMBDAR_RE
+mass_column_name : LMSTAR
+
+# Make a mask which we'll apply to the data to get rid of some galaxies. It's pure python!
+# Use data_df to refer to the dataframe itself
+# Here we're getting rid of infiniet values of mass and lamda_r, selecting galaxies with mass > 9.5 and keeping things with a flag value of 0 or 4
+mask : (np.isfinite(data_df.LAMBDAR_RE)) & (np.isfinite(data_df.LMSTAR)) & (np.isfinite(data_df.LAMBDAR_RE))
+
+## Output files
+# In here will be folders called "Outputs" (for tables), "Plots" and "Chains"
+results_folder : Results/EAGLE_lambda_R_a_b_SAMI_MF
+outfile_stem : EAGLE_lambda_R_a_b_SAMI_MF
+
+subsample : False
+fraction_sampled : 6000
+
+## Initial values for PyStan
+# ToDo - add an easy way to randomise these
+
+init_values : 
+        intercept_SR : 3.5
+        m_SR : 0
+
+        intercept_FR : 1.6
+        m_FR : 0
+
+        c_SR : 1.53
+        c_FR : 1.27
+
+        d_SR : 0.0
+        d_FR : 0.0
+
+        e_SR : 0.0
+        e_FR : 0.0
+
+        m_SR_2 : 0.0
+        m_FR_2 : 0.0
+
+        mu : 0.0
+        sigma : -1.2
+
+## Stan options
+
+stan_model_file : "StanModels/EAGLE_data_MixtureModel_a_b_parameterisation_SAMI_MF.stan"
+
+iterations : 1000
+chains : 4
+stan_options : 
+  adapt_delta : 0.8
+
+
+## Plotting options:
+publication_style : True
+
+
+## Options for saving fits file outputs
+make_lookup_table : True
+N_masses : 100
+N_lambdas : 100

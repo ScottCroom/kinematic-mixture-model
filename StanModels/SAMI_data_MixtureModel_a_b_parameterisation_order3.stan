@@ -29,21 +29,25 @@ parameters{
   real intercept_SR;
   real m_SR;
   real m_SR_2;
+  real m_SR_3;
 
   // The parameters of 'a', which is a linear function of mass (i.e. two params) for the FRs
   real intercept_FR;
   real m_FR;
   real m_FR_2;
+  real m_FR_3;
 
   // The parameters of 'b', which is a linear function of mass (i.e. two params) for the FRs
   real c_FR; 
   real d_FR; 
   real e_FR;
+  real f_FR;
 
   // The parameters of 'b', which is a linear function of mass (i.e. two params) for the SRs
   real c_SR;
   real d_SR;
   real e_SR;
+  real f_SR;
 
 }
 
@@ -66,11 +70,11 @@ transformed parameters{
   lambda[n] = sigmoid(mass[n], mu, exp(log_sigma));
 
   // 'a' and 'b' are linear functions of mass
-  A_SR[n] = exp(c_SR + d_SR * mass[n] + e_SR * mass[n] * mass[n]);
-  A_FR[n] = exp(c_FR + d_FR * mass[n] + e_FR * mass[n] * mass[n]);
+  A_SR[n] = exp(c_SR + d_SR * mass[n] + e_SR * mass[n] * mass[n] + f_SR * mass[n]^3);
+  A_FR[n] = exp(c_FR + d_FR * mass[n] + e_FR * mass[n] * mass[n] + f_FR * mass[n]^3);
 
-  B_FR[n] = exp(intercept_FR + m_FR * mass[n] + m_FR_2 * mass[n] * mass[n]);
-  B_SR[n] = exp(intercept_SR + m_SR * mass[n] + m_SR_2 * mass[n] * mass[n]);
+  B_FR[n] = exp(intercept_FR + m_FR * mass[n] + m_FR_2 * mass[n] * mass[n] + m_FR_3 * mass[n]^3);
+  B_SR[n] = exp(intercept_SR + m_SR * mass[n] + m_SR_2 * mass[n] * mass[n] + m_SR_3 * mass[n]^3);
   }
 }
 
@@ -79,10 +83,12 @@ model{
   intercept_SR ~ normal(log(1000), 0.5);
   m_SR ~ normal(0, 0.5);
   m_SR_2 ~ normal(0, 1);
+  m_SR_3 ~ normal(0, 1);
  
   intercept_FR ~ normal(log(4.4), 0.5);
   m_FR ~ normal(0, 0.5);
   m_FR_2 ~ normal(0, 1);
+  m_FR_3 ~ normal(0, 1);
 
   c_SR ~ normal(log(6.9), 0.5);
   c_FR ~ normal(log(4.5), 0.5);
@@ -92,6 +98,9 @@ model{
 
   e_SR ~ normal(0, 1);
   e_FR ~ normal(0, 1);
+
+  f_SR ~ normal(0, 1);
+  f_FR ~ normal(0, 1);
 
   mu ~ normal(0, 1);
   log_sigma ~ normal(0, 2);

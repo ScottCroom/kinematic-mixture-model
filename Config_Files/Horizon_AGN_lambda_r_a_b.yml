@@ -1,0 +1,62 @@
+
+data_filename : Data/jvds_Horizon_AGN_mass_matched.fits
+
+# Column Names
+lambda_r_column_name : LAMBDAR_RE
+mass_column_name : LMSTAR
+
+# Make a mask which we'll apply to the data to get rid of some galaxies. It's pure python!
+# Use data_df to refer to the dataframe itself
+# Here we're getting rid of infiniet values of mass and lamda_r, selecting galaxies with mass > 9.5 and keeping things with a flag value of 0 or 4
+mask : (np.isfinite(data_df.LAMBDAR_RE)) & (np.isfinite(data_df.LMSTAR))
+
+## Output files
+# In here will be folders called "Outputs" (for tables), "Plots" and "Chains"
+results_folder : Results/HORIZON_AGN_lambda_R_a_b
+outfile_stem : HORIZON_AGN_lambda_R_a_b
+
+subsample : True
+n_samples : 2000
+
+## Initial values for PyStan
+# ToDo - add an easy way to randomise these
+init_values : 
+        intercept_SR : 4.6
+        m_SR : 0
+
+        intercept_FR : 2.7
+        m_FR : 0
+
+        c_SR : 2.3
+        c_FR : 1.8
+
+        d_SR : 0.0
+        d_FR : 0.0
+
+        e_SR : 0.0
+        e_FR : 0.0
+
+        m_SR_2 : 0.0
+        m_FR_2 : 0.0
+
+        mu : 0.0
+        sigma : -1.2
+
+## Stan options
+
+stan_model_file : "StanModels/HORIZON_AGN_data_MixtureModel_a_b_parameterisation.stan"
+
+iterations : 1000
+chains : 4
+stan_options : 
+  adapt_delta : 0.9
+
+
+## Plotting options:
+publication_style : True
+
+
+## Options for saving fits file outputs
+make_lookup_table : True
+N_masses : 100
+N_lambdas : 100

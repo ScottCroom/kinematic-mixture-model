@@ -27,18 +27,19 @@ data_filename = config['data_filename']
 lambda_r_column_name = config['lambda_r_column_name']
 mass_column_name = config['mass_column_name']
 
-data_df = P.load_FITS_table_in_pandas(data_filename)
-
-# Apply the selection mask
-data_df = data_df[eval(config['mask'])]
+if config['subsample']:
+    data_df = pd.read_csv(f"{config['results_folder']}/Outputs/subsample.csv")
+else:
+    data_df = P.load_FITS_table_in_pandas(data_filename)
+    data_df = data_df[eval(config['mask'])]
 N_rows = len(data_df)
-print(f"After applying the given mask, we have {N_rows} rows of data")
+N_samples = 2000
+print(f"We have {N_rows} rows of data")
+
 
 # Get the columns
 lambda_r = data_df[lambda_r_column_name]
 log_m = data_df[mass_column_name]
-
-
 
 ## Get the results
 samples = pd.read_csv(f"{config['results_folder']}/Chains/{config['outfile_stem']}_samples.csv")
@@ -52,16 +53,16 @@ N_ppcs = posterior_predctive_checks.shape[0]
 ######## Posterior Predictive Checks
 # A three panel plot with the FR/SR KDEs, the p(SR) as a function of mass and the histogram of PPCs
 
-fig, axs = plt.subplots(ncols=3, figsize=(13, 4))
+fig, axs = plt.subplots(ncols=1, nrows=3, figsize=(4, 13))
 print("Making Histogram PPC plot...")
 if config['publication_style']:
     plt.style.use('publication')
 else:
     plt.style.use('default')
-_, bins, _ = axs[2].hist(lambda_r, bins=15, histtype='step', linewidth=10.0, edgecolor='k', zorder=1)
-_, bins, _ = axs[2].hist(lambda_r, bins=15, facecolor='lightgrey', linewidth=0.0)
+_, bins, _ = axs[2].hist(lambda_r, bins='fd', histtype='step', linewidth=10.0, edgecolor='k', zorder=1, density=True)
+_, bins, _ = axs[2].hist(lambda_r, bins='fd', facecolor='lightgrey', linewidth=0.0, density=True)
 for i in range(N_ppcs):
-    axs[2].hist(posterior_predctive_checks.iloc[i], bins=bins, histtype='step', linewidth=0.5, alpha=0.1, color='orange', zorder=10)
+    axs[2].hist(posterior_predctive_checks.iloc[i], bins='fd', histtype='step', linewidth=0.5, alpha=0.05, color='orange', zorder=10, density=True)
 axs[2].set_xlabel(r'$\lambda_R$')
 
 
@@ -98,7 +99,7 @@ all_ys_FRs=[]
 all_xs_FRs=[] 
 
 
-for i in range(N_rows): 
+for i in range(N_samples): 
     x, y = get_PPC_draws(i, 0) 
     all_xs_SRs.extend(list(x.values)) 
     all_ys_SRs.extend(list(y)) 
@@ -135,51 +136,84 @@ for ax in axs:
 fig.tight_layout()
 fig.savefig(f"{config['results_folder']}/Plots/{config['outfile_stem']}_three_panel_combined.pdf", bbox_inches='tight')
 
+#If we're using the a/b parameterisation, make a lookup table of PSR and PFR
 
-# # # Make some helper functions for predicting things at any mass/lambda_r
-# # from scipy.special import betainc
-# # from tqdm import tqdm
-# # def get_beta_loc(mass, SR_or_FR):
-# #     if SR_or_FR == 'SR':
-# #         linear_combination = samples.c_SR + samples.d_SR * mass# + samples.e_SR * mass**2 
-# #     else:
-# #         linear_combination = samples.c_FR + samples.d_FR * mass# + samples.e_FR * mass**2 
-# #     return linear_combination
+if config['make_lookup_table']:
+    # Make some helper functions for predicting things at any mass/lambda_r
+    from scipy.special import betainc
+    from tqdm import tqdm
+    def get_beta_loc(mass, SR_or_FR):
+        if SR_or_FR == 'SR':
+            linear_combination = samples.c_SR + samples.d_SR * mass + samples.e_SR * mass**2 
+        else:
+            linear_combination = samples.c_FR + samples.d_FR * mass + samples.e_FR * mass**2 
+        return linear_combination
 
-# # def get_beta_variance(mass, SR_or_FR):
-# #     if SR_or_FR == 'SR':
-# #         return samples.intercept_SR + samples.m_SR * mass
-# #     else:
-# #         return samples.intercept_FR + samples.m_FR * mass# + samples.e_SR * mass**2 
-
-
-# # def get_probability_from_mass(mass):
-
-# #     return sigmoid(mass, samples.mu, np.exp(samples.log_sigma))
-
-# # def get_beta_distributions(mass, SR_or_FR):
-
-# #     #lam = get_probability_from_mass(mass)
-# #     a = get_beta_loc(mass, SR_or_FR)
-# #     b = get_beta_variance(mass, SR_or_FR)
-
-# #     return stats.beta(a=a, b=b)
+    def get_beta_variance(mass, SR_or_FR):
+        if SR_or_FR == 'SR':
+            return samples.intercept_SR + samples.m_SR * mass + samples.m_SR_2 * mass**2 
+        else:
+            return samples.intercept_FR + samples.m_FR * mass + samples.m_FR_2 * mass**2 
 
 
-# # def plot_2d_map(ms, xs, SR_or_FR):
+    def get_probability_from_mass(mass):
 
-# #     probability_density = np.zeros((len(ms), len(xs)))
+        return sigmoid(mass, samples.mu, np.exp(samples.log_sigma))
+
+    def get_beta_distributions(mass, SR_or_FR):
+
+        #lam = get_probability_from_mass(mass)
+        a = np.exp(get_beta_loc(mass, SR_or_FR))
+        b = np.exp(get_beta_variance(mass, SR_or_FR))
+
+        return stats.beta(a=a, b=b)
 
 
-# #     for i, m in enumerate(tqdm(ms)):
-# #         for j, x in enumerate(xs):
-# #             betas = get_beta_distributions(m, SR_or_FR)
-# #             mixture_prob = get_probability_from_mass(m)
-# #             if SR_or_FR == 'SR':
-# #                 probability_density[i, j] = (mixture_prob * betas.pdf(x)).mean()
-# #             else:
-# #                 probability_density[i, j] = ((1 - mixture_prob) * betas.pdf(x)).mean()
-# #     return probability_density
+    def plot_2d_map(ms, xs, SR_or_FR):
+
+        probability_density = np.zeros((len(ms), len(xs)))
+
+
+        for i, m in enumerate(tqdm(ms)):
+            for j, x in enumerate(xs):
+                betas = get_beta_distributions(m, SR_or_FR)
+                mixture_prob = get_probability_from_mass(m)
+                if SR_or_FR == 'SR':
+                    probability_density[i, j] = (mixture_prob * betas.pdf(x)).mean()
+                else:
+                    probability_density[i, j] = ((1 - mixture_prob) * betas.pdf(x)).mean()
+        return probability_density
+
+
+
+    N_masses = config['N_masses']
+    N_lambdas = config['N_lambdas']
+
+    ms = np.linspace(9.5, 12, N_masses) 
+    xs = np.linspace(0.0, 1.0, N_lambdas) 
+
+    # Get the probability density of the SRs and FRs
+    p_SR = plot_2d_map(ms - log_m.mean(), xs, SR_or_FR='SR')
+    p_FR = plot_2d_map(ms - log_m.mean(), xs, SR_or_FR='FR')
+
+    # Sometimes the very far corners can be inf. Turn these to 0
+    p_SR[~np.isfinite(p_SR)] = 0.0
+    p_FR[~np.isfinite(p_FR)] = 0.0
+
+    mass_norm = np.zeros_like(ms)
+    for i in range(len(ms)): 
+        mass_norm[i] = np.trapz(y=p_FR[i, :] + p_SR[i, :], x=xs)  
+
+    # Save the lookup-table
+    mms, xxs = np.meshgrid(ms, xs)
+    from astropy.io import fits 
+    hdu = fits.PrimaryHDU()
+    hdu_masses = fits.ImageHDU(mms.T, name='LogMass_values')
+    hdu_lamdas = fits.ImageHDU(xxs.T, name='Lamda_values')
+    hdu_prob_SR = fits.ImageHDU(p_SR/mass_norm[:, None], name='P_SR_MASS_NORMALISED')
+    hdu_prob_FR = fits.ImageHDU(p_FR/mass_norm[:, None], name='P_FR_MASS_NORMALISED')
+    hdulist = fits.HDUList([hdu, hdu_masses, hdu_lamdas, hdu_prob_SR, hdu_prob_FR])
+    hdulist.writeto(f"{config['results_folder']}/Outputs/{config['outfile_stem']}_pSR_p_FR_lookup_table_{N_masses}_mass_{N_lambdas}_lambda.fits", overwrite=True)
 
 
 # # ms = np.linspace(9.5, 12, 100)
@@ -252,8 +286,8 @@ fig.savefig(f"{config['results_folder']}/Plots/{config['outfile_stem']}_three_pa
 # # # # fig6.savefig('Plots/RealData/M_lamda_scatter2.pdf', bbox_inches='tight')
 
 
-# # # # plt.close('all')
-# # # # plt.style.use('default')
-# # # # fig4 = corner.corner(samples.loc[:, labels], labels=labels, show_titles=True) 
-# # # # fig4.savefig('Plots/RealData/corner.pdf', bbox_inches='tight')
-# # # # plt.close('all')
+# plt.close('all')
+# plt.style.use('default')
+# fig4 = corner.corner(samples.loc[:, labels], labels=labels, show_titles=True) 
+# fig4.savefig('Plots/RealData/corner.pdf', bbox_inches='tight')
+# plt.close('all')
